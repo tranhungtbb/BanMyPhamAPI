@@ -1,0 +1,437 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Web.Mvc;
+using Library.Config;
+using Library.DataBase;
+using Library.Utility;
+using WebBanMyPham.Areas.Administrator.EntityModel;
+using WebBanMyPham.Areas.Administrator.ModelShow;
+
+namespace WebBanMyPham.Areas.Administrator.Controllers
+{
+    public class MenuController : BaseController
+    {
+        [HttpGet]
+        public ActionResult MainMenu()
+        {
+            ViewBag.Messages = CommentController.Messages(TempData["Messages"]);
+            ViewBag.MenuLocation = GetLocaltion(SystemMenuLocation.MainMenu);
+            return View("Index");
+        }
+
+        [HttpGet]
+        public ActionResult SecondMenu()
+        {
+            if (TempData["Messages"] != null)
+            {
+                ViewBag.Messages = TempData["Messages"];
+            }
+            ViewBag.MenuLocation = GetLocaltion(SystemMenuLocation.SecondMenu);
+            return View("Index");
+        }
+          [HttpGet]
+        public ActionResult HeaderMenu()
+        {
+            if (TempData["Messages"] != null)
+            {
+                ViewBag.Messages = TempData["Messages"];
+            }
+            ViewBag.MenuLocation = GetLocaltion(SystemMenuLocation.HeaderMenu);
+            return View("Index");
+        }
+
+        [HttpPost]
+        public JsonResult List(int locationID = 0, int jtStartIndex = 0, int jtPageSize = 0, string jtSorting = null)
+        {
+            try
+            {
+                SystemMenuLocation locationMenu = GetLocaltion(locationID);
+                List<CategoryProduct> listMenu = GetListMenu(locationMenu.LocationId);
+                List<ShowMenu> listMenuShow =
+                    listMenu.Where(m => m.Location == locationMenu.LocationId)
+                        .Join(SystemMenuType.CategoryType, a => a.Type, b => b.Key, (a, b) => new ShowMenu
+                        {
+                            Index = a.Index,
+                            ID = a.ID,
+                            Status = a.Status,
+                            Title = a.Title,
+                            TypeMenu = b.Value,
+                            Level = a.Level
+                        }).ToList();
+                return Json(new {Result = "OK", Records = listMenuShow, TotalRecordCount = listMenuShow.Count});
+            }
+            catch (Exception ex)
+            {
+                return Json(new {Result = "ERROR", message = ex.Message});
+            }
+        }
+
+        [HttpGet]
+        public ActionResult Create()
+        {
+            ListData();
+            SystemMenuLocation systemMenuLocation = GetLocaltion(0);
+            ViewBag.MenuLocation = systemMenuLocation;
+            var menu = new EMenu();
+            return View(menu);
+        }
+
+        [HttpPost]
+        [ValidateInput(false)]
+        public ActionResult Create(EMenu model)
+        {
+            SystemMenuLocation menuLocation = GetLocaltion(model.Location);
+            try
+            {
+                using (var db = new MyDBDataContext())
+                {
+                    if (string.IsNullOrEmpty(model.Alias))
+                    {
+                        model.Alias = StringHelper.ConvertToAlias(model.Title);
+                    }
+                    //Kiểm tra xem alias thuộc hotel này đã tồn tại chưa
+                    CategoryProduct checkMenuAlias =
+                        db.CategoryProducts.FirstOrDefault(m => m.Alias == model.Alias);
+                    if (checkMenuAlias != null)
+                    {
+                        ModelState.AddModelError("Alias", "Menu not exist");
+                    }
+
+
+
+                    CategoryProduct menuParent = db.CategoryProducts.FirstOrDefault(c => c.ID == model.ParentID);
+                    if (menuParent != null)
+                        model.Level = model.ParentID > 0 ? menuParent.Level + 1 : 0;
+                    else
+                    {
+                        model.Level = 0;
+                    }
+                    if (model.Type == SystemMenuType.Home)
+                    {
+                        model.Alias = "";
+                    }
+
+                    if (ModelState.IsValid)
+                    {
+                        var menu = new CategoryProduct
+                        {
+                            Alias = model.Alias,
+                            Index = 0,
+                            Location = menuLocation.LocationId,
+                            Level = model.Level,
+                            MetaDescription = string.IsNullOrEmpty(model.MetaDescription) ? model.Title : model.MetaDescription,
+                            MetaTitle = string.IsNullOrEmpty(model.MetaTitle) ? model.Title : model.MetaTitle,
+                            ParentID = model.ParentID,
+                            Status = model.Status,
+                            Title = model.Title,
+                            Type = model.Type,
+                            Description = model.Description,
+                        };
+                        db.CategoryProducts.InsertOnSubmit(menu);
+                        db.SubmitChanges();
+
+                        TempData["Messages"] = "Successful";
+                        return RedirectToAction(menuLocation.AliasMenu);
+                    }
+                    ListData();
+                    return View(model);
+                    
+                }
+            }
+            catch (Exception exception)
+            {
+                ListData();
+                ViewBag.Messages = "Error: " + exception.Message;
+                return View();
+            }
+        }
+
+        [HttpGet]
+        public ActionResult Update(int id)
+        {
+            using (var db = new MyDBDataContext())
+            {
+                CategoryProduct menu = db.CategoryProducts.FirstOrDefault(m => m.ID == id);
+
+                SystemMenuLocation menuLocation = GetLocaltion(0);
+                if (menu != null)
+                {
+                    var model = new EMenu
+                    {
+                        Alias = menu.Alias,
+                        Index = menu.Index,
+                        Level = menu.Level,
+                        Location = menu.Location,
+                        ID = menu.ID,
+                        MetaDescription = menu.MetaDescription,
+                        MetaTitle = menu.MetaTitle,
+                        ParentID = menu.ParentID,
+                        Status = menu.Status,
+                        Title = menu.Title,
+                        Type = menu.Type,
+                        Description = menu.Description,
+                    };
+                    
+                    ListData();
+                    ViewBag.MenuLocation = GetLocaltion(0);
+                    return View(model);
+                }
+                TempData["Messages"] = "Menu not exist";
+                return RedirectToAction(menuLocation.AliasMenu);
+            }
+        }
+
+        [HttpPost]
+        [ValidateInput(false)]
+        public ActionResult Update(EMenu model)
+        {
+            //Kiểm tra xem alias thuộc hotel này đã tồn tại chưa
+            var db = new MyDBDataContext();
+            CategoryProduct checkMenuAlias = db.CategoryProducts.FirstOrDefault(m => m.Alias == model.Alias && m.ID != model.ID);
+            if (checkMenuAlias != null)
+            {
+                ModelState.AddModelError("Alias", "Menu is exist");
+            }
+            //nếu không hiển thị trên tất cả khách sạn thì menu bắt buộc phải thuộc một khách sạn
+
+            
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    CategoryProduct edit = db.CategoryProducts.FirstOrDefault(m => m.ID == model.ID);
+
+                    if (edit != null)
+                    {
+                        model.Alias = !string.IsNullOrEmpty(model.Alias) ? model.Alias : StringHelper.ConvertToAlias(model.Title);
+                        SystemMenuLocation menuLocation = GetLocaltion(edit.Location);
+                        CategoryProduct firstOrDefault = db.CategoryProducts.FirstOrDefault(c => c.ID == model.ParentID);
+                        if (firstOrDefault != null)
+                            edit.Level = model.ParentID > 0 ? firstOrDefault.Level + 1 : 0;
+                        else
+                        {
+                            edit.Level = 0;
+                        }
+                        if (model.Type == SystemMenuType.Home)
+                        {
+                            model.Alias = "";
+                        }
+
+                        edit.Alias =  model.Alias;
+                        edit.MetaTitle = string.IsNullOrEmpty(model.MetaTitle) ? model.Title : model.MetaTitle;
+                        edit.Title = model.Title;
+                        edit.ParentID = model.ParentID;
+                        edit.Type = model.Type;
+                        edit.Status = model.Status;
+                        edit.MetaDescription = string.IsNullOrEmpty(model.MetaDescription) ? model.Title : model.MetaDescription;
+                       
+                        edit.Description = model.Description;
+                        db.SubmitChanges();
+                        
+                        //Cập nhật lại Level menu con
+                        List<CategoryProduct> menuChilds = db.CategoryProducts.Where(a => a.ParentID == edit.ID).ToList();
+                        foreach (var menuChild in menuChilds)
+                        {
+                            menuChild.Level = edit.Level + 1;
+                            db.SubmitChanges();
+                        }
+
+                        TempData["Messages"] = "Successful";
+                        return RedirectToAction(menuLocation.AliasMenu);
+                    }
+                    SystemMenuLocation menulocation2 = GetLocaltion(0);
+                    TempData["Messages"] = "Menu not exist";
+                    return RedirectToAction(menulocation2.AliasMenu);
+                }
+                catch (Exception exception)
+                {
+                    ListData();
+                    ViewBag.Messages = "Error: " + exception.Message;
+                    return View(model);
+                }
+            }
+            ListData();
+            ViewBag.Messages = "Error data";
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateInput(true)]
+        public JsonResult Delete(int id)
+        {
+            try
+            {
+                using (var db = new MyDBDataContext())
+                {
+                    CategoryProduct del = db.CategoryProducts.FirstOrDefault(c => c.ID == id);
+                    //kiểm tra xem thằng này có menu con không
+                    List<CategoryProduct> listMenu = db.CategoryProducts.Where(m => m.ParentID == del.ID).ToList();
+                    if (del != null)
+                    {
+                        db.CategoryProducts.DeleteAllOnSubmit(listMenu);
+                        db.SubmitChanges();
+                        db.CategoryProducts.DeleteOnSubmit(del);
+                        db.SubmitChanges();
+                        return Json(new {Result = "OK", Message = "Successful" });
+                    }
+                    return Json(new {Result = "OK", Message = "Menu not exist"});
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new {Result = "ERROR", ex.Message});
+            }
+        }
+
+        [HttpPost]
+        public ActionResult UpdateIndex(int locationID)
+        {
+            SystemMenuLocation localtionMenu = GetLocaltion(locationID);
+            try
+            {
+                using (var db = new MyDBDataContext())
+                {
+                    List<CategoryProduct> menus =
+                        db.CategoryProducts.ToList();
+
+                    foreach (CategoryProduct item in menus)
+                    {
+                        string requestIndex = Request.Params[string.Format("Sort[{0}].Index", item.ID)];
+                        int index;
+                        int.TryParse(requestIndex, out index);
+                        CategoryProduct temp = db.CategoryProducts.FirstOrDefault(c => c.ID == item.ID);
+                        if (temp != null)
+                        {
+                            temp.Index = index;
+                            db.SubmitChanges();
+                        }
+                    }
+                }
+                TempData["Messages"] = "successful";
+                return RedirectToAction(localtionMenu.AliasMenu, "Menu");
+            }
+            catch (Exception ex)
+            {
+                TempData["Messages"] = "Error: " + ex.Message;
+                return RedirectToAction(localtionMenu.AliasMenu, "Menu");
+            }
+        }
+
+        public SystemMenuLocation GetLocaltion(int locationId)
+        {
+            SystemMenuLocation menuLocation =
+                SystemMenuLocation.ListLocationMenu().ToList().FirstOrDefault(m => m.LocationId == locationId);
+            if (menuLocation != null)
+            {
+                return menuLocation;
+            }
+            string aliasMenu = Request.QueryString["location"];
+            if (string.IsNullOrEmpty(aliasMenu) == false)
+            {
+                return SystemMenuLocation.ListLocationMenu().ToList().FirstOrDefault(m => m.AliasMenu == aliasMenu);
+            }
+            return new SystemMenuLocation {AliasMenu = "MainMenu", TitleMenu = "Main menu", LocationId = 1};
+        }
+
+        //lấy danh sách menu theo ngôn ngữ, theo hotel, theo vị trí, theo AllHotel
+        public static List<CategoryProduct> GetListMenu(int locationId)
+        {
+            using (var db = new MyDBDataContext())
+            {
+                List<CategoryProduct> listMenuRoot = db.CategoryProducts.ToList();
+                listMenuRoot = listMenuRoot.Where(m => m.ParentID == 0).OrderBy(m => m.Index).ToList();
+
+                listMenuRoot = locationId == 0
+                    ? listMenuRoot
+                    : listMenuRoot.Where(a => a.Location == locationId).ToList();
+
+                List<CategoryProduct> listMenu = listMenuRoot;
+                var menuMaxLevel = locationId == 0
+                    ? db.CategoryProducts.OrderByDescending(m => m.Level).FirstOrDefault()
+                    : db.CategoryProducts.Where(m => m.Location == locationId).OrderByDescending(m => m.Level).FirstOrDefault();
+
+                int level = 0;
+                if (menuMaxLevel != null)
+                {
+                    level = menuMaxLevel.Level;
+                }
+
+                if (level > 0)
+                {
+                    for (int i = 1; i <= level; i++)
+                    {
+                        var listMenuTemp = new List<CategoryProduct>();
+                        List<CategoryProduct> listMenuByLevel;
+
+                        listMenuByLevel =
+                            db.CategoryProducts.Where(m => m.Level == i).ToList();
+                        listMenuByLevel = locationId == 0
+                            ? listMenuByLevel
+                            : listMenuByLevel.Where(a => a.Location == locationId).ToList();
+
+                        foreach (CategoryProduct menu in listMenu)
+                        {
+                            listMenuTemp.Add(menu);
+                            listMenuTemp.AddRange(listMenuByLevel.Where(m => m.ParentID == menu.ID).ToList());
+                        }
+                        listMenu = listMenuTemp;
+                    }
+                }
+                else
+                {
+                    listMenu = listMenuRoot;
+                }
+                return listMenu;
+            }
+        }
+
+        //Lấy danh sách typemenu, parentMene
+        public void ListData()
+        {
+            var listTypeMenu = new List<SelectListItem>();
+            listTypeMenu.Add(new SelectListItem
+            {
+                Text = "Select type show",
+                Value = "0",
+            });
+            listTypeMenu.AddRange(SystemMenuType.CategoryType.Select(a => new SelectListItem
+            {
+                Text = a.Value,
+                Value = a.Key.ToString(CultureInfo.InvariantCulture)
+            }).ToList());
+            ViewBag.ListTypeMenu = listTypeMenu;
+            
+
+            SystemMenuLocation menuLocation = GetLocaltion(0);
+
+            List<CategoryProduct> listParentMenu = GetListMenu(menuLocation.LocationId);
+            foreach (CategoryProduct menu in listParentMenu)
+            {
+                string treeNode = "";
+                if (menu.Level > 0)
+                {
+                    for (int i = 1; i <= menu.Level; i++)
+                    {
+                        treeNode += "|--";
+                    }
+                }
+                menu.Title = treeNode + menu.Title;
+            }
+            var selectListMenu = new List<SelectListItem>();
+
+            selectListMenu.Add(new SelectListItem
+            {
+                Text = "Not in any category",
+                Value = "0"
+            });
+            selectListMenu.AddRange(listParentMenu.Select(a => new SelectListItem
+            {
+                Text = a.Title,
+                Value = a.ID.ToString(CultureInfo.InvariantCulture)
+            }).ToList());
+            ViewBag.ListParentMenu = selectListMenu;
+        }
+    }
+}

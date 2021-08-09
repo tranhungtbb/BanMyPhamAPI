@@ -12,8 +12,10 @@ namespace WebBanMyPham.Models
         public int CustomerID { get; set; }
         public string ProductName { get; set; }
         public int Count { get; set; }
-        public double Price { get; set; }
+        public string Price { get; set; }
+        public string TotalPriceString { get; set; }
         public double TotalPrice { get; set; }
+
         public string Image { get; set; }
     }
 }

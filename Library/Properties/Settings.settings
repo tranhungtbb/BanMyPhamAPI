@@ -10,5 +10,13 @@
 &lt;/SerializableConnectionString&gt;</DesignTimeValue>
       <Value Profile="(Default)">Data Source=DESKTOP-R346NSM\SQLEXPRESS01;Initial Catalog=webkhachhang_banmypham;Integrated Security=True</Value>
     </Setting>
+    <Setting Name="strongtravel_vn_dbConnectionString" Type="(Connection string)" Scope="Application">
+      <DesignTimeValue Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
+&lt;SerializableConnectionString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
+  &lt;ConnectionString&gt;Data Source=mi3-wsq5.my-hosting-panel.com;Initial Catalog=strongtravel_vn_db;User ID=strongtravel_vn_db;Password=V307zfv#&lt;/ConnectionString&gt;
+  &lt;ProviderName&gt;System.Data.SqlClient&lt;/ProviderName&gt;
+&lt;/SerializableConnectionString&gt;</DesignTimeValue>
+      <Value Profile="(Default)">Data Source=mi3-wsq5.my-hosting-panel.com;Initial Catalog=strongtravel_vn_db;User ID=strongtravel_vn_db;Password=V307zfv#</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

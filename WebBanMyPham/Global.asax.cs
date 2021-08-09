@@ -20,4 +20,5 @@ namespace WebBanMyPham
             BundleConfig.RegisterBundles(BundleTable.Bundles);
         }
     }
+    
 }

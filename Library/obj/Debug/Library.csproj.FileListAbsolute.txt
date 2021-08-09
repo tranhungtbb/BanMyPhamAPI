@@ -10,3 +10,15 @@ D:\ChuanBi\Project\WebBanMyPham\Library\obj\Debug\Library.csproj.CopyComplete
 D:\ChuanBi\Project\WebBanMyPham\Library\obj\Debug\Library.dll
 D:\ChuanBi\Project\WebBanMyPham\Library\obj\Debug\Library.pdb
 D:\ChuanBi\Project\WebBanMyPham\Library\obj\Debug\Library.csprojAssemblyReference.cache
+D:\LATN\Project\WebBanMyPham\Library\bin\Debug\Library.dll.config
+D:\LATN\Project\WebBanMyPham\Library\bin\Debug\Library.dll
+D:\LATN\Project\WebBanMyPham\Library\bin\Debug\Library.pdb
+D:\LATN\Project\WebBanMyPham\Library\bin\Debug\EntityFramework.dll
+D:\LATN\Project\WebBanMyPham\Library\bin\Debug\EntityFramework.SqlServer.dll
+D:\LATN\Project\WebBanMyPham\Library\bin\Debug\EntityFramework.xml
+D:\LATN\Project\WebBanMyPham\Library\bin\Debug\EntityFramework.SqlServer.xml
+D:\LATN\Project\WebBanMyPham\Library\obj\Debug\Library.csprojAssemblyReference.cache
+D:\LATN\Project\WebBanMyPham\Library\obj\Debug\Library.csproj.CoreCompileInputs.cache
+D:\LATN\Project\WebBanMyPham\Library\obj\Debug\Library.csproj.CopyComplete
+D:\LATN\Project\WebBanMyPham\Library\obj\Debug\Library.dll
+D:\LATN\Project\WebBanMyPham\Library\obj\Debug\Library.pdb

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace TeamplateHotel.Areas.Administrator.Models
+namespace WebBanMyPham.Areas.Administrator.Models
 {
     public class ChangePass
     {

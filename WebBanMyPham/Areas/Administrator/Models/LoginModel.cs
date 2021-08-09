@@ -1,6 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Web;
 
-namespace TeamplateHotel.Areas.Administrator.Models
+namespace WebBanMyPham.Areas.Administrator.Models
 {
     public class LoginModel
     {

@@ -3,13 +3,15 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
-using ProjectLibrary.Config;
-using ProjectLibrary.Database;
-using ProjectLibrary.Security;
+using Library.Config;
+using Library.DataBase;
+using Library.Security;
 using TeamplateHotel.Areas.Administrator.EntityModel;
-using TeamplateHotel.Areas.Administrator.Models;
+using WebBanMyPham.Areas.Administrator.Controllers;
+using WebBanMyPham.Areas.Administrator.EntityModel;
+using WebBanMyPham.Areas.Administrator.Models;
 
-namespace TeamplateHotel.Areas.Administrator.Controllers
+namespace WebBanMyPham.Areas.Administrator.Controllers
 {
     public class LoginController : Controller
     {
@@ -24,12 +26,7 @@ namespace TeamplateHotel.Areas.Administrator.Controllers
                 return RedirectToAction("Index", "ControlPanel");
             }
             ViewBag.Messages = CommentController.Messages(TempData["Messages"]);
-            ViewBag.ListLanguage = CommentController.ListLanguage().Select(a => new SelectListItem
-            {
-                Value = a.ID,
-                Text = a.Name
-            }).ToList();
-
+            
             return View();
         }
 
@@ -61,7 +58,7 @@ namespace TeamplateHotel.Areas.Administrator.Controllers
             }
             if (ModelState.IsValid)
             {
-                int checklogin = CheckLogin.CheckUserLogin(model.UserName, model.Password, model.LanguageID );
+                int checklogin = CheckLogin.CheckUserLogin(model.UserName, model.Password);
                 switch (checklogin)
                 {
                     case 1:
@@ -106,11 +103,7 @@ namespace TeamplateHotel.Areas.Administrator.Controllers
                             ViewBag.Message = CommentController.Messages(TempData["Message"]);
                             return View();
                         }
-                        ViewBag.ListLanguage = CommentController.ListLanguage().Select(a => new SelectListItem
-                        {
-                            Value = a.ID,
-                            Text = a.Name
-                        }).ToList();
+                        
                         ViewBag.Messages = "Username and password are incorrect";
                         return View(model);
                 }
@@ -129,7 +122,7 @@ namespace TeamplateHotel.Areas.Administrator.Controllers
         [ValidateInput(true)]
         public ActionResult GetPassWord(GetPassword model)
         {
-            using (var db = new MyDbDataContext())
+            using (var db = new MyDBDataContext())
             {
                 User detailUser =
                     db.Users.FirstOrDefault(a => a.Email == model.Email && a.UserName == model.UserName);

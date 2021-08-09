@@ -24,7 +24,20 @@ namespace WebBanMyPham.Controllers
             {
                 try
                 {
-                    var listMenu = db.Menus.Where(x => x.Status && x.Location == location).ToList();
+                    var listMenu = db.CategoryProducts.Where(x => x.Status && x.Location == location)
+                        .Select(x=> new ShowMenu {
+                            ID = x.ID,
+                            Title = x.Title,
+                            Alias = x.Alias,
+                            ParentID = (int)x.ParentID,
+                            Type = x.Type,
+                            Index = x.Index,
+                            Location = x.Location,
+                            Status = x.Status,
+                            MetaDescription = x.MetaDescription,
+                            MetaTitle = x.MetaTitle
+                        })
+                        .ToList();
                     if (listMenu == null)
                     {
                         return Request.CreateResponse(HttpStatusCode.OK, new { status = HttpStatusCode.NotFound, code = 1, messages = "Not data", data = new object { } });
@@ -47,7 +60,7 @@ namespace WebBanMyPham.Controllers
             {
                 try
                 {
-                    var listResult = db.Slides.OrderBy(x => x.Index).ToList();
+                    var listResult = db.Slides.Where(x=>(bool)x.Ismain).OrderBy(x => x.Index).ToList();
                     if (listResult.Count == 0)
                     {
                         return Request.CreateResponse(HttpStatusCode.OK, new { status = HttpStatusCode.NotFound, code = 1, messages = "Not data", data = new object { } });
@@ -108,7 +121,7 @@ namespace WebBanMyPham.Controllers
                 try
                 {
                     var listResult = db.Products.Where(x => x.Status).AsQueryable()
-                        .Join(db.CategoryProducts, a => a.CategoryID, b => b.ID,
+                        .Join(db.Trademarks, a => a.TrademarkID, b => b.ID,
                         (a, b) => new ShowObject
                         {
                             ID = a.ID,
@@ -119,10 +132,10 @@ namespace WebBanMyPham.Controllers
                             QuantitySold = a.QuantitySold,
                             Discount = (a.QuantitySold == null) ? 0 : Math.Round((double)a.QuantitySold / a.Quantity * 100, MidpointRounding.AwayFromZero),
                             Star = a.Start,
-                            Price = a.Price,
-                            Promote = a.Promote,
+                            Price = String.Format("{0:0,0}", a.Price),
+                            Promote = String.Format("{0:0,0}", a.Promote),
                             Madeby = a.MadeBy,
-                            CategoryName = b.Category
+                            Trademark = b.TrademarkName
                         }).ToList();
                     if (listResult.Count == 0)
                     {
@@ -150,7 +163,7 @@ namespace WebBanMyPham.Controllers
                 try
                 {
                     var listResult = db.Products.Where(x => x.Status).AsQueryable()
-                        .Join(db.CategoryProducts, a => a.CategoryID, b => b.ID,
+                        .Join(db.Trademarks, a => a.TrademarkID, b => b.ID,
                         (a, b) => new ShowObject {
                             ID = a.ID,
                             ProductName = a.ProductName,
@@ -160,10 +173,10 @@ namespace WebBanMyPham.Controllers
                             QuantitySold = a.QuantitySold,
                             Discount = (a.QuantitySold == null) ? 0 : Math.Round((double)a.QuantitySold / a.Quantity * 100, MidpointRounding.AwayFromZero),
                             Star = a.Start,
-                            Price = a.Price,
-                            Promote = a.Promote,
+                            Price = String.Format("{0:0,0}", a.Price),
+                            Promote = String.Format("{0:0,0}", a.Promote),
                             Madeby = a.MadeBy,
-                            CategoryName = b.Category
+                            Trademark = b.TrademarkName
                         }).OrderBy(x=>x.Discount).Take(3).ToList();
                     if (listResult.Count == 0)
                     {
@@ -189,7 +202,7 @@ namespace WebBanMyPham.Controllers
                 try
                 {
                     var listResult = db.Products.Where(x => x.Status).AsQueryable()
-                        .Join(db.CategoryProducts, a => a.CategoryID, b => b.ID,
+                        .Join(db.Trademarks, a => a.TrademarkID, b => b.ID,
                         (a, b) => new ShowObject
                         {
                             ID = a.ID,
@@ -200,10 +213,10 @@ namespace WebBanMyPham.Controllers
                             QuantitySold = a.QuantitySold,
                             Discount = (a.QuantitySold == null) ? 0 : Math.Round((double)a.QuantitySold / a.Quantity * 100, MidpointRounding.AwayFromZero),
                             Star = a.Start,
-                            Price = a.Price,
-                            Promote = a.Promote,
+                            Price = String.Format("{0:0,0}", a.Price),
+                            Promote = String.Format("{0:0,0}", a.Promote),
                             Madeby = a.MadeBy,
-                            CategoryName = b.Category
+                            Trademark = b.TrademarkName
                         }).OrderBy(x=>x.ID).Take(15).ToList();
                     if (listResult.Count == 0)
                     {
@@ -251,7 +264,7 @@ namespace WebBanMyPham.Controllers
                     foreach (var item in list)
                     {
                         var k = db.Products.Where(x => x.ID == item.ID).AsQueryable()
-                        .Join(db.CategoryProducts, a => a.CategoryID, b => b.ID,
+                        .Join(db.Trademarks, a => a.TrademarkID, b => b.ID,
                         (a, b) => new ShowObject
                         {
                             ID = a.ID,
@@ -262,10 +275,10 @@ namespace WebBanMyPham.Controllers
                             QuantitySold = a.QuantitySold,
                             Discount = (a.QuantitySold == null) ? 0 : Math.Round((double)a.QuantitySold / a.Quantity * 100, MidpointRounding.AwayFromZero),
                             Star = a.Start,
-                            Price = a.Price,
-                            Promote = a.Promote,
+                            Price = String.Format("{0:0,0}", a.Price),
+                            Promote = String.Format("{0:0,0}", a.Promote),
                             Madeby = a.MadeBy,
-                            CategoryName = b.Category
+                            CategoryName = b.TrademarkName
                         }).FirstOrDefault();
                         if(k != null)
                         {
@@ -289,29 +302,29 @@ namespace WebBanMyPham.Controllers
             }
         }
 
-        // lấy danh sách các loại category
+        // lấy danh sách các thuong hieu
         
-        [Route("api/getListCategory")]
+        [Route("api/getListTrademark")]
         [HttpGet]
-        public HttpResponseMessage listCategory()
+        public HttpResponseMessage listTrademark()
         {
             using (var db = new MyDBDataContext())
             {
                 try
                 {
-                    var listCate = db.CategoryProducts.ToList();
+                    var listCate = db.Trademarks.ToList();
                     var listResult = new List<Categories>();
                     
                     listCate.ForEach(item =>
                         {
-                            var products = db.Products.Where(x => x.Status && x.CategoryID == item.ID).ToList();
+                            var products = db.Products.Where(x => x.Status && x.TrademarkID == item.ID).ToList();
                             if (products.Count > 0)
                             {
-                                listResult.Add(new Categories { ID = item.ID, CategoryName = item.Category });
+                                listResult.Add(new Categories { ID = item.ID, TrademarkName = item.TrademarkName });
                             }
                         }
                     );
-
+                     
                     if (listResult.Count == 0)
                     {
                         return Request.CreateResponse(HttpStatusCode.OK, new { status = HttpStatusCode.NotFound, code = 1, messages = "Not data", data = new object { } });
@@ -327,20 +340,19 @@ namespace WebBanMyPham.Controllers
 
 
 
-
-        // function getListProductByCategory
+        
         // nhưng mỗi danh mục phải lấy ít nhất 1 sản phẩm, tối đa 7 sản phẩm
-        [Route("api/getListProductByCategory")]
+        [Route("api/getListProductByTrademark")]
         [HttpGet]
-        public HttpResponseMessage listProductByCategory(int categoryID)
+        public HttpResponseMessage listProductByTradeMark(int trademarkID)
         {
             using (var db = new MyDBDataContext())
             {
                 try
                 {
                     var listProducts = db.Products.Where(x => x.Status).AsQueryable()
-                        .Join(db.CategoryProducts.Where(x => x.ID == categoryID), a => a.CategoryID, b => b.ID,
-                        (a,b)=>new { a,b }).Join(db.Menus,a=>a.a.MenuID,b=>b.ID, (a,b)
+                        .Join(db.Trademarks.Where(x => x.ID == trademarkID), a => a.TrademarkID, b => b.ID,
+                        (a,b)=>new { a,b }).Join(db.CategoryProducts,a=>a.a.CategoryID,b=>b.ID, (a,b)
                     => new ShowObject
                        {
                            ID = a.a.ID,
@@ -351,18 +363,18 @@ namespace WebBanMyPham.Controllers
                            QuantitySold = a.a.QuantitySold,
                            Discount = (a.a.QuantitySold == null) ? 0 : Math.Round((double)a.a.QuantitySold / a.a.Quantity * 100, MidpointRounding.AwayFromZero),
                            Star = a.a.Start,
-                           Price = a.a.Price,
-                           Promote = a.a.Promote,
+                           Price = String.Format("{0:0,0}", a.a.Price),
+                           Promote = String.Format("{0:0,0}", a.a.Promote),
                            Madeby = a.a.MadeBy,
-                           CategoryName = a.b.Category,
-                           MenuID = b.ID,
-                           MenuIndex = b.Index
-                       }).OrderBy(x=>x.MenuIndex).ToList();
-                    var listResult = listProducts.GroupBy(x => x.MenuID).Select(x => x.First()).ToList();
+                           CategoryName = b.Title,
+                           CategoryID = b.ID,
+                           CategoryIndex = b.Index
+                       }).OrderBy(x=>x.CategoryIndex).ToList();
+                    var listResult = listProducts.GroupBy(x => x.CategoryID).Select(x => x.First()).ToList();
                     listResult.ForEach(item => listProducts.Remove(item));
                     while (listResult.Count < 7)
                     {
-                        listResult.AddRange(listProducts.GroupBy(x => x.MenuID).Select(x => x.First()).Take(7- listResult.Count()).ToList());
+                        listResult.AddRange(listProducts.GroupBy(x => x.CategoryIndex).Select(x => x.First()).Take(7- listResult.Count()).ToList());
                     }
                     if (listResult.Count == 0)
                     {
@@ -377,19 +389,31 @@ namespace WebBanMyPham.Controllers
             }
         }
 
+        // list type sort
+        [Route("api/getTypeSorts")]
+        [HttpGet]
+        public HttpResponseMessage listTypeSort() {
+            var data = Library.Config.TypeSort.ListTypeSort();
+            if (data.Count > 0) {
+                return Request.CreateResponse(HttpStatusCode.OK, new { status = HttpStatusCode.OK, code = 1, messages = "Success", data = data });
+            }
+            return Request.CreateResponse(HttpStatusCode.OK, new { status = HttpStatusCode.NotFound, code = 0, messages = "Not data", data = new object { } });
+        }
 
         // function getListProductByMenu
-        [Route("api/getListProductByMenuID")]
+        [Route("api/getListProductByCategory")]
         [HttpGet]
-        public HttpResponseMessage listProductByMenu(int menuID)
+        public HttpResponseMessage listProductByCategory(string menuAlias = "", int? typeSort = 0,  int? pageSize = 9, int? pageNumber = 1)
         {
             using (var db = new MyDBDataContext())
             {
                 try
                 {
+                   int pagesize = pageSize ?? 9;
+                   int pagenumber = pageNumber ?? 1;
                     var listResult = db.Products.Where(x => x.Status).AsQueryable()
-                        .Join(db.CategoryProducts, a => a.CategoryID, b => b.ID,
-                        (a, b) => new { a, b }).Join(db.Menus.Where(x => x.ID == menuID), a => a.a.MenuID, b => b.ID, (a, b)
+                        .Join(db.Trademarks, a => a.TrademarkID, b => b.ID,
+                        (a, b) => new { a, b }).Join(db.CategoryProducts.Where(x => x.Alias == menuAlias), a => a.a.CategoryID, b => b.ID, (a, b)
                               => new ShowObject
                               {
                                   ID = a.a.ID,
@@ -400,13 +424,34 @@ namespace WebBanMyPham.Controllers
                                   QuantitySold = a.a.QuantitySold,
                                   Discount = (a.a.QuantitySold == null) ? 0 : Math.Round((double)a.a.QuantitySold / a.a.Quantity * 100, MidpointRounding.AwayFromZero),
                                   Star = a.a.Start,
-                                  Price = a.a.Price,
-                                  Promote = a.a.Promote,
+                                  Price = String.Format("{0:0,0}", a.a.Price),
+                                  Promote = String.Format("{0:0,0}",a.a.Promote),
                                   Madeby = a.a.MadeBy,
-                                  CategoryName = a.b.Category,
-                                  MenuID = b.ID,
-                                  MenuIndex = b.Index
-                              }).OrderBy(x => x.MenuIndex).ToList();
+                                  CategoryName = a.b.TrademarkName,
+                                  CategoryID = b.ID,
+                                  CategoryIndex = b.Index
+                              }).ToList();
+
+                    switch (typeSort) {
+                        case Library.Config.TypeSort.Default:
+                            listResult = listResult.OrderBy(x=>x.ID).Skip((pagenumber-1) * pagesize).Take(pagesize).ToList();
+                            break;
+                        case Library.Config.TypeSort.Increate:
+                            listResult = listResult.OrderByDescending(x => x.Price).Skip((pagenumber - 1) * pagesize).Take(pagesize).ToList();
+                            break;
+                        case Library.Config.TypeSort.Decreate:
+                            listResult = listResult.OrderBy(x => x.Price).Skip((pagenumber - 1) * pagesize).Take(pagesize).ToList();
+                            break;
+                        case Library.Config.TypeSort.Discount:
+                            listResult = listResult.OrderBy(x => x.Discount).Skip((pagenumber - 1) * pagesize).Take(pagesize).ToList();
+                            break;
+                        case Library.Config.TypeSort.New:
+                            listResult = listResult.OrderByDescending(x => x.ID).Skip((pagenumber - 1) * pagesize).Take(pagesize).ToList();
+                            break;
+                        default:
+                            listResult = listResult.OrderBy(x => x.ID).Skip((pagenumber - 1) * pagesize).Take(pagesize).ToList();
+                            break;
+                    }
                     if (listResult.Count == 0)
                     {
                         return Request.CreateResponse(HttpStatusCode.OK, new { status = HttpStatusCode.NotFound, code = 1, messages = "Not data", data = new object { } });
@@ -434,8 +479,8 @@ namespace WebBanMyPham.Controllers
                 try
                 {
                     var product = db.Products.FirstOrDefault(x => x.ID == productID);
-                    var listResult = db.Products.Where(x => x.Status && x.MenuID == product.MenuID && x.ID != productID ).AsQueryable()
-                        .Join(db.CategoryProducts, a => a.CategoryID, b => b.ID,
+                    var listResult = db.Products.Where(x => x.Status && x.CategoryID == product.CategoryID && x.ID != productID ).AsQueryable()
+                        .Join(db.Trademarks, a => a.TrademarkID, b => b.ID,
                         (a, b) => new ShowObject
                         {
                             ID = a.ID,
@@ -446,10 +491,10 @@ namespace WebBanMyPham.Controllers
                             QuantitySold = a.QuantitySold,
                             Discount = (a.QuantitySold == null) ? 0 : Math.Round((double)a.QuantitySold / a.Quantity * 100, MidpointRounding.AwayFromZero),
                             Star = a.Start,
-                            Price = a.Price,
-                            Promote = a.Promote,
+                            Price = String.Format("{0:0,0}", a.Price),
+                            Promote = String.Format("{0:0,0}", a.Promote),
                             Madeby = a.MadeBy,
-                            CategoryName = b.Category
+                            CategoryName = b.TrademarkName
                         }).OrderBy(x => x.ID).Take(15).ToList();
                     if (listResult.Count == 0)
                     {
@@ -476,8 +521,8 @@ namespace WebBanMyPham.Controllers
                 try
                 {
                     var result = db.Products.Where(x => x.ID == id).AsQueryable()
-                        .Join(db.CategoryProducts, a => a.CategoryID, b => b.ID, (a, b) => new { a, b })
-                        .Join(db.Menus, a => a.a.MenuID, b => b.ID, (a, b) => new ShowObject {
+                        .Join(db.Trademarks, a => a.TrademarkID, b => b.ID, (a, b) => new { a, b })
+                        .Join(db.CategoryProducts, a => a.a.CategoryID, b => b.ID, (a, b) => new ShowObject {
                             ID = a.a.ID,
                             ProductName = a.a.ProductName,
                             Alias = a.a.Alias,
@@ -486,13 +531,13 @@ namespace WebBanMyPham.Controllers
                             QuantitySold = a.a.QuantitySold,
                             Discount = (a.a.QuantitySold == null) ? 0 : Math.Round((double)a.a.QuantitySold / a.a.Quantity * 100, MidpointRounding.AwayFromZero),
                             Star = a.a.Start,
-                            Price = a.a.Price,
-                            Promote = a.a.Promote,
+                            Price = String.Format("{0:0,0}", a.a.Price),
+                            Promote = String.Format("{0:0,0}", a.a.Promote),
                             Madeby = a.a.MadeBy,
-                            CategoryName = a.b.Category,
+                            Trademark = a.b.TrademarkName,
                             Content = a.a.Content,
-                            MenuID = b.ID,
-                            MenuName = b.Title
+                            CategoryID = b.ID,
+                            CategoryName = b.Title
                         }).FirstOrDefault();
                     if (result == null)
                     {
@@ -519,7 +564,7 @@ namespace WebBanMyPham.Controllers
                 {
                     var listResult = new List<ShowArticle>();
                     listResult = db.Articles.Where(x => x.Status == true)
-                        .Join(db.Menus, a=>a.MenuID, b=>b.ID , (a,b)=> new { a,b})
+                        .Join(db.CategoryProducts, a=>a.MenuID, b=>b.ID , (a,b)=> new { a,b})
                         .Select(x => new ShowArticle
                         {
                             ID = x.a.ID,
@@ -542,6 +587,49 @@ namespace WebBanMyPham.Controllers
                 catch(Exception ex)
                 {
                     return Request.CreateResponse(HttpStatusCode.NotFound, new { status = HttpStatusCode.NotFound, code = 0, messager = ex.Message });
+                }
+            }
+        }
+
+        // search by key
+        [Route("api/getListProductSearch")]
+        [HttpGet]
+        public HttpResponseMessage searchProduct(string key)
+        {
+            using (var db = new MyDBDataContext())
+            {
+                try
+                {
+                    var k = key.Replace(" ", string.Empty).ToLower();
+                    var listResult = db.Products.Where(x => x.Status && x.ProductName.Replace(" ", string.Empty).ToLower().Contains(k)).AsQueryable()
+                        .Join(db.Trademarks, a => a.TrademarkID, b => b.ID,
+                        (a, b) => new { a, b }).Join(db.CategoryProducts, a => a.a.CategoryID, b => b.ID, (a, b)
+                              => new ShowObject
+                              {
+                                  ID = a.a.ID,
+                                  ProductName = a.a.ProductName,
+                                  Alias = a.a.Alias,
+                                  Image = a.a.Image,
+                                  Quantity = a.a.Quantity,
+                                  QuantitySold = a.a.QuantitySold,
+                                  Discount = (a.a.QuantitySold == null) ? 0 : Math.Round((double)a.a.QuantitySold / a.a.Quantity * 100, MidpointRounding.AwayFromZero),
+                                  Star = a.a.Start,
+                                  Price = String.Format("{0:0,0}", a.a.Price),
+                                  Promote = String.Format("{0:0,0}", a.a.Promote),
+                                  Madeby = a.a.MadeBy,
+                                  Trademark = a.b.TrademarkName,
+                                  CategoryID = b.ID,
+                                  CategoryIndex = b.Index
+                              }).OrderBy(x => x.CategoryIndex).ToList();
+                    if (listResult.Count == 0)
+                    {
+                        return Request.CreateResponse(HttpStatusCode.OK, new { status = HttpStatusCode.NotFound, code = 1, messages = "Not data", data = new object { } });
+                    }
+                    return Request.CreateResponse(HttpStatusCode.OK, new { status = HttpStatusCode.OK, code = 0, messages = "Success", data = listResult });
+                }
+                catch (Exception ex)
+                {
+                    return Request.CreateResponse(HttpStatusCode.NotFound, new { status = HttpStatusCode.NotFound, code = 0, messages = ex.Message });
                 }
             }
         }

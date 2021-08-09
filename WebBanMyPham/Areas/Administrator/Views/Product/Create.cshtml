@@ -1,0 +1,342 @@
+﻿@using WebBanMyPham.Areas.Administrator.EntityModel
+@model EProduct
+@{
+    ViewBag.Title = "Create Product";
+    Layout = "~/Areas/Administrator/Views/Templates/_LayoutPage.cshtml";
+    int flag = 0;
+}
+
+<div class="span12">
+    <div class="widget ">
+        <div class="widget-header">
+            <i class=" icon-plus-sign"></i>
+            <h3>@ViewBag.Title</h3>
+        </div> <!-- /widget-header -->
+
+        <div class="widget-content">
+            @Html.ValidationSummary(true)
+            @using (Html.BeginForm("Create", "Product", FormMethod.Post, new { @class = "form-horizontal" }))
+            {
+                <div class="control-group">
+                    @Html.LabelFor(c => c.ProductName, new { @class = "control-label" })
+                    <div class="controls">
+                        @Html.TextBoxFor(c => c.ProductName, new { @class = "span4" })
+                        @Html.ValidationMessageFor(c => c.ProductName)
+                    </div>
+                </div>
+                <div class="control-group">
+                    @Html.LabelFor(c => c.Alias, new { @class = "control-label" })
+                    <div class="controls">
+                        @Html.TextBoxFor(c => c.Alias, new { @class = "span4" })
+                        @Html.ValidationMessageFor(c => c.Alias)
+                    </div>
+                </div>
+                <div class="control-group">
+                    @Html.LabelFor(c => c.CategoryID, new { @class = "control-label" })
+                    <div class="controls">
+                        @Html.DropDownListFor(c => c.CategoryID, new SelectList(ViewBag.ListMenu, "Value", "Text"), new { @class = "span3" })
+                        @Html.ValidationMessageFor(c => c.CategoryID)
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    @Html.LabelFor(c => c.TrademarkID, new { @class = "control-label" })
+                    <div class="controls">
+                        @Html.DropDownListFor(c => c.TrademarkID, new SelectList(ViewBag.ListCategory, "Value", "Text"), new { @class = "span3" })
+                        @Html.ValidationMessageFor(c => c.TrademarkID)
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    @Html.LabelFor(c => c.Image, new { @class = "control-label" })
+                    <div class="controls">
+                        @Html.TextBoxFor(c => c.Image, new { @class = "span4 upload" })
+                        @Html.ValidationMessageFor(c => c.Image)
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    @Html.LabelFor(c => c.Price, new { @class = "control-label" })
+                    <div class="controls">
+                        @Html.TextBoxFor(c => c.Price, new { @class = "span4" })
+                        @Html.ValidationMessageFor(c => c.Price)
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    @Html.LabelFor(c => c.Promote, new { @class = "control-label" })
+                    <div class="controls">
+                        @Html.TextBoxFor(c => c.Promote, new { @class = "span4" })
+                        @Html.ValidationMessageFor(c => c.Promote)
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    @Html.LabelFor(c => c.Quantity, new { @class = "control-label" })
+                    <div class="controls">
+                        @Html.TextBoxFor(c => c.Quantity, new { @class = "span1" })
+                        @Html.ValidationMessageFor(c => c.Quantity)
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    @Html.LabelFor(c => c.MadeBy, new { @class = "control-label" })
+                    <div class="controls">
+                        @Html.TextBoxFor(c => c.MadeBy, new { @class = "span1" })
+                        @Html.ValidationMessageFor(c => c.MadeBy)
+                    </div>
+                </div>
+
+
+                <div class="control-group">
+                    @Html.LabelFor(c => c.Description, new { @class = "control-label" })
+                    <div class="controls">
+                        @Html.TextAreaFor(c => c.Description, new { @class = "basic-ckeditor" })
+                    </div>
+                </div>
+
+
+                <div class="control-group">
+                    @Html.LabelFor(c => c.Star, new { @class = "control-label" })
+                    <div class="controls">
+                        @Html.DropDownListFor(c => c.Star, new SelectList(ViewBag.ListStar, "Value", "Text"), new { @class = "span3" })
+                        @Html.ValidationMessageFor(c => c.Star)
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label" for="Title">Trạng thái hiển thị</label>
+                    <div class="controls">
+                        @Html.CheckBoxFor(c => c.Status, new { @checked = true })
+                    </div>
+                </div>
+                
+
+
+                <div class="control-group">
+                    <div class="controls">
+                        <h3 class="mg-h">Thêm hình ảnh cho sản phẩm</h3>
+                        <ul class="adminformlist">
+                            <li class="imgthumb">
+                                <label>Hình ảnh </label>
+                                <input type="text" id="img-thumb" style="min-width: 190px" class="upload" />
+                                <button type="button" id="add" class="btn btn-primary">Insert</button>
+                                <p class="help-img">Nên chọn hình ảnh có kích thước lớn hơn 600px</p>
+                            </li>
+                            <li>
+                                <ul style="clear: both; height: auto; width: 100%;" class="allImage" id="">
+                                    @if (Model.EGalleryITems != null)
+                                    {
+                                        foreach (EProduct.EGalleryITem gallery in Model.EGalleryITems)
+                                        {
+                                            <li>
+                                                <input id="EGalleryITems_@(flag)__Image" name="EGalleryITems[@(flag)].Image" type="hidden" value="@(gallery.Image)" />
+                                                <img src="@(gallery.Image)" width="100" />
+                                            </li>
+                                            flag++;
+                                        }
+                                    }
+                                </ul>
+                            </li>
+
+                        </ul>
+                    </div>
+                </div>
+
+
+                <div class="form-actions">
+                    <input type="submit" value="Submit" class="btn btn-primary" />
+                    <a href="@Url.Action("Index", "Hotel")" class="btn">Cancel</a>
+                </div>
+                <div class="control-seo">
+                    <h3 class="mg-h">Maximize searching engine (Seo)</h3>
+                    <div class="control-group">
+                        <label>MetaTitle</label>
+                        <div class="jtable-input jtable-text-input">
+                            @Html.TextAreaFor(c => c.MetaTitle, new { @class = "span4 meta-seo" })
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        @Html.LabelFor(c => c.MetaDescription)
+                        <div class="jtable-input jtable-text-input">
+                            @Html.TextAreaFor(c => c.MetaDescription, new { @class = "span4 meta-seo" })
+                        </div>
+                    </div>
+
+
+                </div>
+
+            }
+        </div>
+    </div>
+</div>
+
+<ul id='context-menu'>
+    <li>Delete</li>
+</ul>
+
+
+<style>
+    ul li {
+        list-style: none;
+    }
+
+    ul.adminformlist {
+        margin: 0px;
+    }
+
+    .allImage{
+        width: 95% !important;
+        height: auto;
+        clear: both;
+        max-height: 373px;
+        overflow-y: scroll !important;
+        margin: 20px 0px;
+    }
+
+    ul.allImage li
+     {
+        width: 100px;
+        float: left;
+        border: 1px solid #f1f1f1;
+        margin-right: 5px;
+        padding: 2px;
+    }
+
+        ul.allImage li img,
+        ul.allImage1 li img {
+            margin: 0px auto;
+        }
+
+    ul#context-menu {
+        position: absolute;
+        display: none;
+        /*sample style attributes follow*/
+        width: 100px;
+        background: #333;
+        color: #fff;
+        font-size: 12px;
+        list-style: none;
+        cursor: pointer;
+    }
+</style>
+<script type="text/javascript">
+    function bindRightClick() {
+        $('.allImage li').unbind();
+        $('.allImage li').bind('contextmenu', function (e) {
+            $('#context-menu').css('left', e.pageX + 'px');
+            $('#context-menu').css('top', e.pageY + 'px');
+            $('#context-menu').show();
+            e.preventDefault();
+            curentImg = $(this);
+            return false;
+        });
+    }
+    function sapxep() {
+        var temp = 0;
+        $(".allImage li").each(function () {
+            $(this).find('input').each(function () {
+                var id = $(this).attr("id");
+                var name = $(this).attr("name");
+                var abc = name.substring(name.indexOf('[') + 1, name.indexOf(']'));
+                //console.log('name: ' + name + ' and : ' + abc);
+                var idreplace = id.replace(abc, temp);
+                var namereplace = name.replace(abc, temp);
+                $(this).attr("id", idreplace);
+                $(this).attr("name", namereplace);
+            });
+            temp++;
+        });
+        bindRightClick();
+    }
+
+    function loadHtmlForImage(val) {
+        if ($('#EGalleryITems_' + val + '__Image').length > 0) {
+            return loadHtmlForImage(++val);
+        } else {
+            //console.log(val);
+            var image = '<input id="EGalleryITems_' + val + '__Image" name="EGalleryITems[' + val + '].Image" type="hidden" value="' + $('#img-thumb').val() + '"/>';
+            //var index = '<input id="EGalleryITems_' + val + '__IndexImage" name="EGalleryITems[' + val + '].IndexImage" type="text" style="width: 85px;" value="' + $('#Index').val() + '"/>';
+            var img = '<img src="' + $('#img-thumb').val() + '" width="100" height="80" />';
+            return ('<li>' + image + img + '</li>');
+        }
+    }
+
+    $(document).ready(function () {
+        bindUl();
+        AutoAlias("ProductName", "Alias");
+        CreateCkEditor();
+
+        if ($("#HotelId option").length == 1) {
+            $("#HotelId").closest(".control-group").hide();
+        }
+
+
+        bindRightClick();
+        $('html').click(function (e) {
+            $('#context-menu').hide();
+        });
+        $('#context-menu').click(function (e) {
+            e.stopPropagation();
+            $(curentImg).remove();
+            sapxep();
+            $('#context-menu').hide(100);
+        });
+        $(window).resize(function () {
+            $('#context-menu').hide();
+        });
+        //
+        var count = 0;
+        //Thêm ảnh
+        //$('#add').click(function () {
+        //    if ($('#img').val() == "") {
+        //        alert("Please select image");
+        //    } else {
+        //        var data = '';
+        //        while (true) {
+        //            if ($('#GalleryProducts_0__ImageSmall').length == 0) {
+        //                data = loadHtmlForImage(0);
+        //                count = 1;
+        //            } else {
+        //                data = loadHtmlForImage(count++);
+        //            }
+        //            break;
+        //        }
+        //        $('.allImage').append(data);
+        //        sapxep();
+        //        bindRightClick();
+        //        $('#img-title').val('');
+        //        $('#img-thumb').val('');
+        //        $('#img').val('');
+        //    }
+
+        //});
+
+        //Thêm ảnh
+        $('#add').click(function () {
+            if ($('#img').val() == "") {
+                alert("Xin vui lòng chọn ảnh");
+            } else {
+                var data = '';
+                while (true) {
+                    if ($('#EGalleryITems_0__Image').length == 0) {
+                        data = loadHtmlForImage(0);
+                        count = 1;
+                    } else {
+                        data = loadHtmlForImage(count++);
+                    }
+                    break;
+                }
+                $('.allImage').append(data);
+                sapxep();
+                bindRightClick();
+                $('#img-title').val('');
+                $('#img-thumb').val('');
+                $('#Index').val('');
+                $('#img').val('');
+            }
+
+        });
+
+    });
+</script>

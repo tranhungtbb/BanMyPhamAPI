@@ -1,0 +1,12 @@
+D:\LATN\Project\WebBanMyPham\Library\bin\Release\Library.dll.config
+D:\LATN\Project\WebBanMyPham\Library\bin\Release\Library.dll
+D:\LATN\Project\WebBanMyPham\Library\bin\Release\Library.pdb
+D:\LATN\Project\WebBanMyPham\Library\bin\Release\EntityFramework.dll
+D:\LATN\Project\WebBanMyPham\Library\bin\Release\EntityFramework.SqlServer.dll
+D:\LATN\Project\WebBanMyPham\Library\bin\Release\EntityFramework.xml
+D:\LATN\Project\WebBanMyPham\Library\bin\Release\EntityFramework.SqlServer.xml
+D:\LATN\Project\WebBanMyPham\Library\obj\Release\Library.csprojAssemblyReference.cache
+D:\LATN\Project\WebBanMyPham\Library\obj\Release\Library.csproj.CoreCompileInputs.cache
+D:\LATN\Project\WebBanMyPham\Library\obj\Release\Library.csproj.CopyComplete
+D:\LATN\Project\WebBanMyPham\Library\obj\Release\Library.dll
+D:\LATN\Project\WebBanMyPham\Library\obj\Release\Library.pdb

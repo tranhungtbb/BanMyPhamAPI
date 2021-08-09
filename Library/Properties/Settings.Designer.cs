@@ -33,5 +33,16 @@ namespace Library.Properties {
                 return ((string)(this["webkhachhang_banmyphamConnectionString"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
+        [global::System.Configuration.DefaultSettingValueAttribute("Data Source=mi3-wsq5.my-hosting-panel.com;Initial Catalog=strongtravel_vn_db;User" +
+            " ID=strongtravel_vn_db;Password=V307zfv#")]
+        public string strongtravel_vn_dbConnectionString {
+            get {
+                return ((string)(this["strongtravel_vn_dbConnectionString"]));
+            }
+        }
     }
 }

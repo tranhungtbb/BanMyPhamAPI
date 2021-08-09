@@ -29,6 +29,8 @@ namespace WebBanMyPham.Author
 
             };
 
+            app.MapSignalR();
+
             //Token Generations
             app.UseOAuthAuthorizationServer(options);
             app.UseOAuthBearerAuthentication(new OAuthBearerAuthenticationOptions());

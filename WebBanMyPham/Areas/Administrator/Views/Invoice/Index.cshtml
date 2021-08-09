@@ -1,0 +1,110 @@
+﻿
+@{
+    Layout = "~/Areas/Administrator/Views/Templates/_LayoutPage.cshtml";
+}
+<div class="optionShow">
+    <div class="optionShow-title">Hóa đơn:</div>
+    <div class="item-option">
+        <div class="item-option">
+            <div class="title-item-option">Trạng thái:</div>
+            <div class="content-item-option">@Html.DropDownList("listStatus")</div>
+        </div>
+        <div class="title-item-option">Tìm kiếm</div>
+        <div class="content-item-option">
+            <input id="keySearch" type="text" />
+        </div>
+    </div>
+</div>
+
+<div id="jtable-main-container"></div>
+<script type="text/javascript">
+        $(document).ready(function() {
+            $('#jtable-main-container').jtable({
+                title: '@ViewBag.Title',
+                paging: true, //Enable paging
+                pageSize: 30, //Set page size (default: 10)
+                sorting: true, //Enable sorting
+                defaultSorting: 'Name ASC', //Set default sorting
+                selecting: true, //Enable selecting
+                multiselect: true, //Allow multiple selecting
+                selectingCheckboxes: true, //Show checkboxes on first column
+                columnResizable: true, //Actually, no need to set true since it's default
+                columnSelectable: true, //Actually, no need to set true since it's default
+                saveUserPreferences: true, //Actually, no need to set true since it's default
+
+                actions: {
+                    listAction: '@Url.Action("List", "Invoice")',
+                    deleteAction: '@Url.Action("Delete", "Invoice")',
+                },
+                fields: {
+                    ID: {
+                        key: true,
+                        create: false,
+                        edit: false,
+                        list: false
+                    },
+                    Code: {
+                        title: 'Mã đơn hàng',
+                        width: '10%',
+                        display: function (data) {
+                            return '<a href="/admin/Invoice/Update/' + data.record.ID + '">' + data.record.Code + '</a>';
+                        }
+                    },
+                    FullName: {
+                        title: 'Tên khách hàng',
+                        width: '8%'
+                    },
+
+                    CreateDate: {
+                        title: 'Booking Date',
+                        width: '10%',
+                        display: function (data) {
+                            return data.record.CreateDate;
+                        }
+                    },
+
+                    Status: {
+                        title: 'Trạng thái',
+                        width: '8%',
+                        
+                    },
+                    TotalPrice: {
+                        title: 'Total Price',
+                        width: '8%',
+                        display: function (data) {
+                            return data.record.TotalPrice +' vnđ';
+                        }
+
+                    },
+                    '':
+                    {
+                        title: '',
+                        width: '2%',
+                        sorting: false,
+                        display: function (data) {
+                            return '<button title="Detail" type="button" class="jtable-command-button jtable-edit-command-button" onclick="detailRecord(' + data.record.ID + ')"><span>Edit</span></button>';
+                        }
+                    },
+                },
+
+            });
+            $('#jtable-main-container').jtable('load');
+        });
+</script>
+
+
+
+<script>
+    function detailRecord(Id) {
+        window.location = '@Url.Action("Detail", "Invoice")' + '/' + Id;
+    }
+    $('#listStatus').change(function () {
+        $("#keySearch").val("");
+        $('#jtable-main-container').jtable('load', { status : $("#listStatus").val() });
+    });
+
+
+    $('#keySearch').keyup(function () {
+        $('#jtable-main-container').jtable('load', { status: $("#listStatus").val(), key: $("#keySearch").val() });
+    });
+</script>

@@ -9,7 +9,7 @@ namespace Library.Config
         public const int AboutUs = 3;
         public const int Service = 4;
         public const int Article = 5;
-
+        public const int Home = 6;
 
 
 
@@ -19,7 +19,8 @@ namespace Library.Config
                                                                      {CategoryProduct, "Category Product"},
                                                                      {AboutUs, "About Us"},
                                                                      {Service, "Service"},
-                                                                     {Article, "Article"}
+                                                                     {Article, "Article"},
+                                                                     {Home, "Home"}
                                                                  };
     }
 }

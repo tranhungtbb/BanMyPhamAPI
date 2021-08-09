@@ -1,6 +1,6 @@
 ﻿using System.Web.Mvc;
 
-namespace TeamplateHotel.Areas.Administrator
+namespace WebBanMyPham.Areas.Administrator
 {
     public class AdministratorAreaRegistration : AreaRegistration
     {
@@ -14,10 +14,12 @@ namespace TeamplateHotel.Areas.Administrator
 
         public override void RegisterArea(AreaRegistrationContext context)
         {
+            
+
             context.MapRoute(
                 "Administrator_default",
-                "admin/{controller}/{action}/{id}/{aliasMenu}",
-                new { controller = "Login", action = "Index", id = UrlParameter.Optional, aliasMenu=UrlParameter.Optional }
+                "admin/{controller}/{action}/{id}",
+                new { controller = "Login", action = "Index", id = UrlParameter.Optional }
             );
         }
     }

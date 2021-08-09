@@ -1,9 +1,9 @@
 ﻿using System.Linq;
 using System.Net;
 using System.Web.Mvc;
-using ProjectLibrary.Database;
-using ProjectLibrary.Security;
-
+using Library.DataBase;
+using Library.Security;
+using WebBanMyPham.Areas.Administrator.Controllers;
 
 namespace TeamplateHotel.Areas.Administrator.Controllers
 {
@@ -13,8 +13,7 @@ namespace TeamplateHotel.Areas.Administrator.Controllers
         // GET: /Administrator/ControlPanel/
         public ActionResult Index()
         {
-            var db = new MyDbDataContext();
-            ViewBag.Messages = CommentController.Messages(TempData["Messages"]);
+            var db = new MyDBDataContext();
             string cookieClient = Request.Cookies["name_client"].Value;
             string deCodecookieClient = CryptorEngine.Decrypt(cookieClient, true);
             string userName = deCodecookieClient.Substring(0, deCodecookieClient.IndexOf("||"));
